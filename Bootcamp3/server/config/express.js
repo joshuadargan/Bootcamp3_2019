@@ -32,7 +32,7 @@ module.exports.init = function() {
      use the listings router middleware for requests to the api 
      check the variables list above
   */
-  app.use('/api/listings');
+  app.use('/api/listings', listingsRouter); // TODO: Test this
 
 
    /* Request Handler for coordinates
@@ -54,6 +54,11 @@ module.exports.init = function() {
    */
    //res.sendFile(path.resolve(...));
   });
+
+  //TODO: May be unnecessary
+ // app.listen(8080, () => {
+  //  console.log("Server is listening on port 8080")
+  //});
   
   return app;
 };  

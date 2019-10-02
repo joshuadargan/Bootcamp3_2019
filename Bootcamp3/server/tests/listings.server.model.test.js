@@ -24,6 +24,17 @@ listing =  {
   address: "1545 W University Ave, Gainesville, FL 32603, United States"
 }
 
+//Address is an int and coordinates are strings (the opposite of what it should be)
+brokenListing = {
+  code: "JOSH",
+  name: "DARGAN",
+  address: 12345,
+  coordinates: [{
+    latitude: "Number is",
+    longitude: "expeced"
+  }],
+}
+
 describe('Listing Schema Unit Tests', function() {
 
   before(function(done) {
@@ -40,13 +51,24 @@ describe('Listing Schema Unit Tests', function() {
      */
     this.timeout(10000);
 
+    //My test case - tests if an error is thrown when coordinates are not numbers
+    it('throws an error when coordinates are strings', function(done){
+      new Listing({
+        name: brokenListing.name, 
+        code: brokenListing.code,
+        coordinates: brokenListing.coordinates
+      }).save(function(err){
+        should.exist(err);
+        done();
+      });
+    });
+
     it('saves properly when code and name provided', function(done){
       new Listing({
         name: listing.name, 
         code: listing.code
       }).save(function(err, listing){
         should.not.exist(err);
-        id = listing._id;
         done();
       });
     });
@@ -76,6 +98,7 @@ describe('Listing Schema Unit Tests', function() {
         done();
       })
     });
+    
 
   });
 

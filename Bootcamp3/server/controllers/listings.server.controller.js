@@ -2,7 +2,8 @@
 /* Dependencies */
 var mongoose = require('mongoose'), 
     Listing = require('../models/listings.server.model.js'),
-    coordinates = require('./coordinates.server.controller.js');
+    coordinates = require('./coordinates.server.controller.js'),
+    util = require('util');
     
 /*
   In this file, you should use Mongoose queries in order to retrieve/add/remove/update listings.
@@ -20,7 +21,6 @@ var mongoose = require('mongoose'),
   or
   https://adrianmejia.com/getting-started-with-node-js-modules-require-exports-imports-npm-and-beyond/
  */
-
 /* Create a listing */
 exports.create = function(req, res) {
 
@@ -56,26 +56,66 @@ exports.read = function(req, res) {
 /* Update a listing - note the order in which this function is called by the router*/
 exports.update = function(req, res) {
   var listing = req.listing;
+  var bodyListing = new Listing(req.body);
 
-  /* Replace the listings's properties with the new properties found in req.body */
- 
-  /*save the coordinates (located in req.results if there is an address property) */
- 
-  /* Save the listing */
+  var query = {code : listing.code};
+  var update = {
+    name : bodyListing.name,
+    code : bodyListing.code,
+    address : bodyListing.address
+  };
+  
+  Listing.updateOne(query,update);
 
+  Listing.find({code: bodyListing.code})
+  .then(result => { 
+    console.log("RESULT:  " + JSON.stringify(result));
+    res.send(result);
+  }).catch(err => {
+    console.log("ERROR:   " + err);
+    res.status(400).send({
+        message: err.message || "Failed to update location"
+    });
+  });
 };
 
 /* Delete a listing */
 exports.delete = function(req, res) {
   var listing = req.listing;
 
-  /* Add your code to remove the listins */
+  Listing.deleteOne({
+    code: listing.code
+  }, function (err, result) {
+    if (err)
+        res.send(err);
+    res.json({
+        status: "success",
+        message: 'Listing deleted'
+    });
+  });
 
 };
 
 /* Retreive all the directory listings, sorted alphabetically by listing code */
 exports.list = function(req, res) {
   /* Add your code */
+
+  Listing.find({}, function(err, locations) {
+    if (err) throw err;
+    
+    //Sorts it alphabetically by code
+    locations.sort( (a,b) => (a.code > b.code) ? 1 : -1);
+
+    // object of all the users
+    //console.log(util.inspect(locations, {maxArrayLength: null}));
+    
+  }).then(locations => { 
+    res.send(locations);
+  }).catch(err => {
+    res.status(400).send({
+        message: err.message || "Some error occurred while retrieving locations."
+    });
+  });
 };
 
 /* 

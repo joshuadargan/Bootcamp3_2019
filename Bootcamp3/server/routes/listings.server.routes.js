@@ -8,7 +8,9 @@
 var listings = require('../controllers/listings.server.controller.js'), 
     getCoordinates = require('../controllers/coordinates.server.controller.js'),
     express = require('express'), //refers to Express the middleware helper for Node.js
-    router = express.Router(); //refers to the Router() function in Express the middleware helper for Node.js
+    router = express.Router({
+      caseSensitive: true
+    }); //refers to the Router() function in Express the middleware helper for Node.js
 
 /* 
   These method calls are responsible for routing requests to the correct request handler.
