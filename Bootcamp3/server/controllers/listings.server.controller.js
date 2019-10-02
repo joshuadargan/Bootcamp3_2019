@@ -41,8 +41,8 @@ exports.create = function(req, res) {
       console.log(err);
       res.status(400).send(err);
     } else {
+      console.log(listing);
       res.json(listing);
-      console.log(listing)
     }
   });
 };
@@ -65,7 +65,12 @@ exports.update = function(req, res) {
     address : bodyListing.address
   };
   
-  Listing.updateOne(query,update);
+  Listing.updateOne(query,update, 
+    function (err, result) {
+        if (err) throw err;
+        console.log(err);
+        console.log("PIKA " + JSON.stringify(result));
+    });
 
   Listing.find({code: bodyListing.code})
   .then(result => { 
