@@ -5,30 +5,15 @@ var mongoose = require('mongoose'),
     coordinates = require('./coordinates.server.controller.js'),
     util = require('util');
     
-/*
-  In this file, you should use Mongoose queries in order to retrieve/add/remove/update listings.
-  On an error you should send a 404 status code, as well as the error message. 
-  On success (aka no error), you should send the listing(s) as JSON in the response.
-
-  HINT: if you are struggling with implementing these functions refer back to this tutorial 
-  https://www.callicoder.com/node-js-express-mongodb-restful-crud-api-tutorial/
-  or
-  https://medium.com/@dinyangetoh/how-to-build-simple-restful-api-with-nodejs-expressjs-and-mongodb-99348012925d
-  
-
-  If you are looking for more understanding of exports and export modules - 
-  https://www.sitepoint.com/understanding-module-exports-exports-node-js/
-  or
-  https://adrianmejia.com/getting-started-with-node-js-modules-require-exports-imports-npm-and-beyond/
- */
 /* Create a listing */
 exports.create = function(req, res) {
 
   /* Instantiate a Listing */
   var listing = new Listing(req.body);
-
+  console.log("TESTSTTT21     " + JSON.stringify(req.results));
   /* save the coordinates (located in req.results if there is an address property) */
   if(req.results) {
+    console.log("TESTSTTT22     " + JSON.stringify(req.results));
     listing.coordinates = {
       latitude: req.results.lat, 
       longitude: req.results.lng
@@ -57,27 +42,30 @@ exports.read = function(req, res) {
 exports.update = function(req, res) {
   var listing = req.listing;
   var bodyListing = new Listing(req.body);
-
   var query = {code : listing.code};
   var update = {
     name : bodyListing.name,
     code : bodyListing.code,
     address : bodyListing.address
   };
-  
+
+  if(req.results) {
+    bodyListing.coordinates = {
+      latitude: req.results.lat, 
+      longitude: req.results.lng
+    };
+    update.coordinates = bodyListing.coordinates;
+  }
+
   Listing.updateOne(query,update, 
     function (err, result) {
         if (err) throw err;
-        console.log(err);
-        console.log("PIKA " + JSON.stringify(result));
     });
 
-  Listing.find({code: bodyListing.code})
+  Listing.findOne({code: bodyListing.code})
   .then(result => { 
-    console.log("RESULT:  " + JSON.stringify(result));
     res.send(result);
   }).catch(err => {
-    console.log("ERROR:   " + err);
     res.status(400).send({
         message: err.message || "Failed to update location"
     });
@@ -132,6 +120,9 @@ exports.list = function(req, res) {
  */
 exports.listingByID = function(req, res, next, id) {
   Listing.findById(id).exec(function(err, listing) {
+    //coordinates.use(req,res,next, function(req) {
+
+    //});
     if(err) {
       res.status(400).send(err);
     } else {
